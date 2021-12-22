@@ -1,7 +1,19 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
+morgan.token('postBody', (req) => {
+    return JSON.stringify(req.body)
+})
 app.use(express.json())
+
+app.use(morgan(':method :url :res[content-length] - :response-time ms :postBody', {
+    skip: (req) => req.method !== 'POST'
+}))
+
+app.use(morgan('tiny', {
+    skip: (req) => req.method === "POST"
+}))
 
 
 let persons = [
@@ -32,7 +44,7 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-   response.json(persons)
+    response.json(persons)
 })
 
 app.get('/api/persons/:id', (request, response) => {
